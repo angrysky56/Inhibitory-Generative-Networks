@@ -12,11 +12,9 @@ Proving that target signal features can be reliably carved out of spontaneous ba
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Implement Layer 1: The Stochastic Substrate (Langevin CTRNN grid in JAX generating 1/f noise). — Phase 01
 
 ### Active
-
-- [ ] Implement Layer 1: The Stochastic Substrate (Langevin CTRNN grid in JAX generating 1/f noise).
 - [ ] Implement Layer 2: The Meta-Logical Grounding Engine (CNN processing external signals to generate masking tensors).
 - [ ] Implement Layer 3: The Sculptor (Applying Hadamard product to filter the CTRNN grid output into target representations).
 - [ ] Define measurable metrics for evaluating the IGN's performance versus additive baselines.
@@ -66,4 +64,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-22 after project initialization*
+*Last updated: 2026-04-23 after Phase 01*

@@ -13,9 +13,9 @@
 
 ## Phase 2: Layer 2 - Meta-Logical Grounding Engine
 **Goal**: Build the CNN and mask generation logic.
-- [ ] GND-01: Implement Convolutional Neural Network (CNN) feature extractor.
-- [ ] GND-02: Implement Meta-Logical Grounding block.
-- [ ] GND-03: Define spatial mapping from grounding tensor dimensions to CTRNN grid dimensions.
+- [x] GND-01: Implement Convolutional Neural Network (CNN) feature extractor.
+- [x] GND-02: Implement Meta-Logical Grounding block.
+- [x] GND-03: Define spatial mapping from grounding tensor dimensions to CTRNN grid dimensions.
 
 **Success Criteria**:
 - CNN processes a dummy MNIST image into a mask tensor matching the CTRNN dimensions.

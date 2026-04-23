@@ -9,9 +9,9 @@
 - [ ] **SUB-04**: Implement Euler-Maruyama numerical integration for asynchronous state simulation.
 
 ### Grounding
-- [ ] **GND-01**: Implement Convolutional Neural Network (CNN) feature extractor.
-- [ ] **GND-02**: Implement Meta-Logical Grounding block that translates features into inhibitory masking tensors.
-- [ ] **GND-03**: Define spatial mapping from grounding tensor dimensions to CTRNN grid dimensions.
+- [x] **GND-01**: Implement Convolutional Neural Network (CNN) feature extractor.
+- [x] **GND-02**: Implement Meta-Logical Grounding block that translates features into inhibitory masking tensors.
+- [x] **GND-03**: Define spatial mapping from grounding tensor dimensions to CTRNN grid dimensions.
 
 ### Sculpting
 - [ ] **SCU-01**: Implement Hadamard product application between Layer 2 masks and Layer 1 outputs.
