@@ -2,10 +2,10 @@
 
 ## Phase 1: Layer 1 - Stochastic Substrate
 **Goal**: Build a stable, differentiable simulation of continuous neural noise.
-- [ ] SUB-01: Implement continuous-time Langevin dynamics module in JAX.
-- [ ] SUB-02: Implement 2D grid Continuous-Time Recurrent Neural Network (CTRNN).
-- [ ] SUB-03: Integrate Langevin module to provide noise baselines to the CTRNN.
-- [ ] SUB-04: Implement Euler-Maruyama numerical integration.
+- [x] SUB-01: Implement continuous-time Langevin dynamics module in JAX.
+- [x] SUB-02: Implement 2D grid Continuous-Time Recurrent Neural Network (CTRNN).
+- [x] SUB-03: Integrate Langevin module to provide noise baselines to the CTRNN.
+- [x] SUB-04: Implement Euler-Maruyama numerical integration.
 
 **Success Criteria**: 
 - A test script runs a 100-timestep simulation of the grid.
