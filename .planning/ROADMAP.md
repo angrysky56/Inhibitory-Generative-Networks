@@ -31,8 +31,8 @@
 
 ## Phase 4: Evaluation and Metrics
 **Goal**: Measure the efficacy of the IGN.
-- [ ] EVAL-01: Implement signature-matching metric.
-- [ ] EVAL-02: Implement comparative benchmark against an additive baseline.
+- [x] EVAL-01: Implement signature-matching metric.
+- [x] EVAL-02: Implement comparative benchmark against an additive baseline.
 
 **Success Criteria**:
 - Metrics report accurately calculates the distance between sculpted output and target representations.
