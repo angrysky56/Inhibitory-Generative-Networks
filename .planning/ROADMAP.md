@@ -22,9 +22,9 @@
 
 ## Phase 3: Layer 3 - The Sculptor
 **Goal**: Connect the layers via inhibitory masking.
-- [ ] SCU-01: Implement Hadamard product application.
-- [ ] SCU-02: Implement clipping/thresholding.
-- [ ] SCU-03: Integrate 3-layer forward pass.
+- [x] SCU-01: Implement Hadamard product application.
+- [x] SCU-02: Implement clipping/thresholding.
+- [x] SCU-03: Integrate 3-layer forward pass.
 
 **Success Criteria**:
 - A full forward pass runs from a source signal to a sculpted output state.
