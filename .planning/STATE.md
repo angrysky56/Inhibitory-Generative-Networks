@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: Phase 4 complete
-last_updated: "2026-04-23T13:16:36Z"
+last_updated: "2026-04-23T19:22:00Z"
 progress:
   total_phases: 4
   completed_phases: 4
@@ -20,12 +20,12 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Proving that target signal features can be reliably carved out of spontaneous background noise using inhibitory Hadamard masking instead of additive excitation.
-**Current focus:** Phase 4 complete — evaluation-and-metrics
+**Current focus:** Milestone v1.0 Complete — All primary layers and evaluation metrics implemented.
 
-## Current Phase: Phase 4
+## Current Phase: Phase 4 (Complete)
 
 - **Goal:** Measure the efficacy of the IGN.
-- **Status:** Completed
+- **Status:** 100% Complete
 
 ## Accumulated Context
 
@@ -35,6 +35,6 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 ## Session Continuity
 
-Last session: --stopped-at
-Stopped at: Completed 02-PLAN.md
+Last session: Milestone v1.0 Finalization
+Stopped at: Project-level README and documentation finalization.
 Resume file: --resume-file
