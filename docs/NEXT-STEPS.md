@@ -24,15 +24,30 @@ The README and research doc make claims that the current code cannot support. Th
 
 Three experiments, progressively more ambitious. Each answers a specific claim.
 
-### Experiment A — Measure the noise (half-day)
+### Experiment A — Measure the noise (half-day) — **DONE 2026-04-24**
 
 **Claim under test:** "The substrate generates a 1/f noise baseline."
 
-**Method:** Run `simulate_substrate` for a long trajectory (say T = 100, 10k timesteps). For each spatial cell, take the time series and compute the power spectral density (FFT). Average PSDs across cells. Plot log(power) vs log(frequency). A 1/f^α signal shows up as a straight line with slope −α.
+**Method:** Ran `diffeqsolve` directly (bypassing `simulate_substrate`'s hardcoded 100-point SaveAt) to get 2000–5000 sampled points across T=20–50. For each spatial cell, took the time series, computed PSD via rFFT, averaged across cells, fit log(power) vs log(freq) on the inertial range [0.5 Hz, fs/4].
 
-**Threshold for success:** α between 0.5 and 1.5 across a decade of frequencies. If α ≈ 0, it's white noise; if α ≈ 2, it's Brownian. 1/f is the specific claim.
+**Result:** **α = 2.0 ± 0.05, robust across configurations.** Tested grid sizes 8/16/32, simulation lengths T=20 and T=50, integration steps dt=0.001 and dt=0.01 — every run gave α between 1.94 and 2.05.
 
-**Why do this first:** It's the cheapest check and it validates (or refutes) a core mechanistic claim. If the substrate isn't producing the noise profile the theory assumes, that's an architectural finding — tune the CTRNN stencil, the coupling strength, or the Langevin diffusion coefficient until it does.
+| config | α |
+|---|---|
+| 16×16, T=20, dt=0.01 | 2.033 |
+| 16×16, T=50, dt=0.01 | 2.046 |
+| 16×16, T=20, dt=0.001 | 1.937 |
+| 32×32, T=20, dt=0.01 | 2.039 |
+| 8×8, T=20, dt=0.01 | 2.040 |
+
+**Interpretation:** **This is Brownian (random-walk) noise, not pink noise.** α≈2 means power scales as 1/f², which is the spectrum you get from integrating white noise — exactly what diffusion-dominated SDE dynamics produce. The CTRNN's contractive linear drift (`-γ·y`) is too weak relative to the diffusion to impose long-range temporal correlations. The 1/f claim in the README is **not currently true**.
+
+**What to do about it:** This is fixable but it's an architectural decision, not a tuning knob. Options:
+1. **Stronger nonlinear coupling.** Increase the stencil weights or replace `tanh(coupling)` with a sharper saturating nonlinearity to push the system toward criticality (real 1/f noise emerges at the edge of dynamical instability — see self-organized criticality literature).
+2. **Multi-timescale dynamics.** Add a second-order term or hierarchy of CTRNN layers with different γ values. Pink noise often appears as a superposition of OU processes with a power-law distribution of timescales.
+3. **Accept α=2 and update the docs.** Brownian-baseline subtractive generation is still a coherent paradigm; it just isn't 1/f. The biological-plausibility claim weakens but doesn't disappear (cortical activity has been characterized as both, depending on what's being measured).
+
+**Recommendation:** Option 1 is the smallest experiment. Try `gamma=0.1` (currently 1.0 — much weaker linear contraction → longer effective memory) and re-measure. If α drops to ~1.0–1.5, the architecture is salvageable as-is. If it stays at 2, options 2 or 3.
 
 ### Experiment B — Train both models on the same toy task (weekend)
 
@@ -74,9 +89,25 @@ Train both models. Then at inference, run each model N=100 times on the same inp
 - **Larger grounding networks.** Don't expand Layer 2 from the single Linear until Experiment B reveals that the single Linear is actually the bottleneck.
 - **Additional modalities.** MNIST is enough to make or break the core claim. Audio, video, 3D — all premature.
 
-## Small code fixes worth making in the meantime
+## On suggestions inspired by the septo-entorhinal paper
 
-These aren't blockers but will bite if left alone.
+The Kim et al. 2026 paper (Nature Neuroscience, doi:10.1038/s41593-026-02280-6) was floated as motivation for several architectural changes — active temporal inhibition, recursive grounding, bipartite excitatory/inhibitory streams, an "inhibitory efficiency" metric.
+
+**Important framing first:** the paper is about which memory mice retrieve after a memory update — the medial septum GABAergic projection to medial entorhinal cortex is required for retrieving the updated memory and not the original. **It is not a paper about generative imagery, subtractive sculpting, or 1/f cortical dynamics.** Citing it as IGN motivation would be a stretch readers will catch. Don't.
+
+That said, evaluated on their own engineering merits — separate from whether the paper supports them — two of the four suggestions are genuinely good:
+
+**Worth doing: active temporal inhibition.** Currently the mask is computed once from input features, and applied only at the very end (`sculpted = ctrnn_state * mask`). Injecting the mask into `CTRNNGrid.drift` so it gates the coupling/relaxation as the system evolves is architecturally sounder — it stops the substrate from wasting compute simulating states that will be suppressed anyway, and it lets the mask shape temporal correlations rather than just spatial structure. This is a stronger move than it sounds: it may also affect the α=2 finding from Experiment A, since static masking can't impose long-range temporal correlations on the substrate but active gating can.
+
+**Worth doing: recursive grounding.** Right now `MetaLogicalGrounding` only sees the initial CNN features and produces a single mask. Updating the mask in the integration loop based on the substrate's current state (read it back at intervals, re-run grounding, update mask) closes a loop that's currently open. This is a standard iterative-refinement pattern in generative models; it's not specifically biological.
+
+**Skip for now: bipartite excitatory/inhibitory streams.** Adding a separate inhibitory stencil and gating the balance between two streams is more architecture for diminishing returns. If active temporal inhibition (above) gates coupling strength in the existing single stencil, you get most of the same effect with half the complexity. Revisit only if active inhibition turns out to be insufficient.
+
+**Fold in, don't add separately: inhibitory efficiency metric.** Measuring how cleanly IGN suppresses an injected distractor signal is a useful measurement, but it's a special case of the diversity / coverage metrics already proposed in Experiment C. Add the distractor-suppression test as a sub-experiment in C rather than as a new evaluation track.
+
+**Sequencing:** active temporal inhibition is small and cheap (one-line change to `drift`). Try it before recursive grounding. If α drops toward 1/f as a side effect, that's a real finding — and it would mean the original "1/f baseline" claim is achievable through *active* gating, even though it isn't through the current static-mask architecture.
+
+## Small code fixes worth making in the meantime
 
 1. **README example is broken.** The code example `model = IGN(...)` then `model(input_signal, key)` won't run — the real class is `IGNModel` and takes `(x, y0, t0, t1, dt0, key)`. Fix the example to match `tests/layer3/test_integration.py` which has the correct call signature.
 2. **CNN output size is hardcoded as 800 in two places.** `model.py` and `evaluation/baseline.py` both compute this from assumed 1×28×28 input. Extract a helper (e.g., `cnn_output_size(input_shape) -> int`) or accept it as an init parameter. Any change to input size will silently break both classes.
@@ -86,6 +117,6 @@ These aren't blockers but will bite if left alone.
 
 ## Closing thought
 
-The idea is coherent. The code is cleaner than most speculative-research repos at this stage. What's missing isn't architectural insight — it's empirical evidence. The three experiments above are the minimum path to knowing whether the paradigm is real, and the first one is cheap enough to run this week.
+The idea is coherent. The code is cleaner than most speculative-research repos at this stage. What's missing isn't architectural insight — it's empirical evidence. Experiment A is now done and gave a real, replicable, architecturally-meaningful result (α=2, not 1/f). Experiment B (training, weekend) is the next gate, and the active-temporal-inhibition change above is a small unblocker that may help on its way.
 
-"Untested besides basic and maybe untestable" was too modest. It is testable. It just hasn't been tested *in the ways that would settle the question*.
+"Untested besides basic and maybe untestable" was too modest. It is testable. It just hasn't been tested *in the ways that would settle the question* — and now we know exactly which ways those are.
